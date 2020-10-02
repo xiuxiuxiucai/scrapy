@@ -4,38 +4,34 @@ from Tencent.items import TencentItem
 
 class TencentSpider(scrapy.Spider):
     name = 'tencent'
-    allowed_domains = ['tencent.com']
 
-    baseUrl = "https://careers.tencent.com/search.html?index="
-    offset = 0
-    start_urls = [baseUrl + str(offset)]
+    start_urls = ["https://www.bilibili.com/ranking"]
 
     def parse(self, response):
 
-        print(response)
+        print("111111111111111111111111111")
 
-        positionNames = response.xpath("//h4[@class='recruit-title xh-highlight']")
+        titles = response.xpath("//a[@class='title']/text()").extract()
+        urls = response.xpath("//a[@class='title']/@href").extract()
+        watchNums = response.xpath("//span[@class='data-box']/i[@class='b-icon play']/../text()").extract()
+        fires = response.xpath("//span[@class='data-box']/i[@class='b-icon view']/../text()").extract()
+        authors = response.xpath("//span[@class='data-box']/i[@class='b-icon author']/../text()").extract()
 
-        print(positionNames)
-
-        for node in positionNames:
+        i = 0
+        for title in titles:
             item = TencentItem()
-            # 职位名称
-            item["positionName"] = node.extract()[0].encode("utf-8")
-            print("1111111111111111111111111111111111", item["positionName"])
-            # 职位类别
-            item["positionType"] = node.xpath("../p[@class='recruit-tips']/span[3]").extract()[0].encode("utf-8")
-            print(item["positionType"])
-            # 工作地点
-            item["workLocation"] = node.xpath("../p[@class='recruit-tips']/span[2]").extract()[0].encode("utf-8")
-            print(item["workLocation"])
-            # 发布时间
-            item["publishTime"] = node.xpath("../p[@class='recruit-tips']/span[4]").extract()[0].encode("utf-8")
-            print(item["publishTime"])
 
+            # 标题
+            item["title"] = title
+            print("2222222222222222222222", item["title"])
+            # 链接
+            item["url"] = urls[i]
+            # 播放量
+            item["watchNum"] = watchNums[i]
+            # 弹幕
+            item["fire"] = fires[i]
+            # 作者
+            item["author"] = authors[i]
+
+            i += 1
             yield item
-
-        if self.offset < 3:
-            self.offset += 1
-            url = self.baseUrl + str(self.offset)
-            yield scrapy.Request(url, callback = self.parse)

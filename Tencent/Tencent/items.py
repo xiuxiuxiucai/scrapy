@@ -7,14 +7,17 @@ import scrapy
 
 
 class TencentItem(scrapy.Item):
-    # 职位名称
-    positionName = scrapy.Field()
+    # 标题
+    title = scrapy.Field()
 
-    # 职位类别
-    positionType = scrapy.Field()
+    # 链接
+    url = scrapy.Field()
 
-    # 工作地点
-    workLocation = scrapy.Field()
+    # 播放量
+    watchNum = scrapy.Field()
 
-    # 发布时间
-    publishTime = scrapy.Field()
+    # 弹幕
+    fire = scrapy.Field()
+
+    # 作者
+    author = scrapy.Field()

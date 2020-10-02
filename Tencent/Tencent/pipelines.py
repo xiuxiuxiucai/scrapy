@@ -11,7 +11,7 @@ import json
 
 class TencentPipeline:
     def __init__(self):
-        self.f = open("tencent.json", "w")
+        self.f = open("bilibili.json", "w")
 
     def process_item(self, item, spider):
         content = json.dumps(dict(item), ensure_ascii = False) + ",\n"
