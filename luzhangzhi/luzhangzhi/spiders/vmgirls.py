@@ -9,7 +9,7 @@ headers = {
 }
 response = requests.get("https://www.vmgirls.com/13344.html", headers=headers)
 html = response.text
-git
+
 # 解析
 dirName = re.findall('<h1 class="post-title h1">(.*?)</h1>', html)[-1]
 if not os.path.exists(dirName):
