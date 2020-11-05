@@ -5,8 +5,6 @@ import xlsxwriter
 
 # 搜索商品
 def get_product(account, password):
-    # 最大化浏览器
-    # driver.maximize_window()
     # 输入用户名
     driver.find_element_by_xpath("//input[@placeholder='请输入您的用户名']").send_keys(account)
     # 输入密码
@@ -16,16 +14,9 @@ def get_product(account, password):
     # 隐式等待
     driver.implicitly_wait(10)
 
-    # # 点击综合分析
-    # driver.find_element_by_xpath("//div[@class='nav-3']").click()
-    # # 进入站点历史数据查询页面
-    # driver.find_element_by_xpath("//span[@url='/DataQuery/StationHistoryData']").click()
-    # # 隐式等待
-    # driver.implicitly_wait(10)
-
     # 进入iframe
     driver.get("http://117.78.34.39:7078/DataQuery/StationHistoryData")
-    # 隐式等待
+    # 隐式等待vlue
     driver.implicitly_wait(10)
 
     # 选择站点
@@ -41,10 +32,10 @@ def get_product(account, password):
 
     # 修改开始时间
     startDate = driver.find_element_by_xpath("//input[@id='startdate']")
-    driver.execute_script("arguments[0].setAttribute(arguments[1],arguments[2])", startDate, "value", "2020-09-01 00:00")
+    driver.execute_script("arguments[0].setAttribute(arguments[1],arguments[2])", startDate, "value", "2020-10-01 00:00")
     # 修改结束时间
     endDate = driver.find_element_by_xpath("//input[@id='enddate']")
-    driver.execute_script("arguments[0].setAttribute(arguments[1],arguments[2])", endDate, "value", "2020-09-02 00:00")
+    driver.execute_script("arguments[0].setAttribute(arguments[1],arguments[2])", endDate, "value", "2020-10-15 23:00")
     # 修改查询项目
     driver.find_element_by_xpath("//input[@map='PM25_V']").click()
     driver.find_element_by_xpath("//input[@map='SO2_V']").click()
@@ -53,13 +44,17 @@ def get_product(account, password):
     driver.find_element_by_xpath("//input[@map='O3_V']").click()
     driver.find_element_by_xpath("//input[@map='VAL8_V']").click()
     driver.find_element_by_xpath("//input[@map='VAL3_V']").click()
-    # 每页显示条数
-    driver.find_element_by_xpath("//button[@class='btn btn-default dropdown-toggle']").click()
-    driver.find_element_by_xpath("//ul[@class='dropdown-menu']/li[5]/a").click()
-    time.sleep(2)
-    # 查询
+    time.sleep(1)
+    # 查询 从而刷新查询项目
     driver.find_element_by_xpath("//button[@class='button button1'][1]").click()
-    time.sleep(5)
+    time.sleep(2)
+    # 设置每页显示条数
+    driver.find_element_by_xpath("//button[@class='btn btn-default dropdown-toggle']").click()
+    pageNum = driver.find_element_by_xpath("//ul[@class='dropdown-menu']/li[5]/a")
+    driver.execute_script("arguments[0].innerHTML=3000", pageNum)
+    time.sleep(1)
+    pageNum.click()
+    time.sleep(3)
 
 
 # 爬取数据
@@ -74,11 +69,14 @@ def parse_product():
 
     # 从第一行开始
     row = 0
+    start = 0
+    end = 0
 
     i = 0
-    while i < pageTotal:
+    while i < 1:
         i += 1
-        print("正在爬取第", i, "页数据")
+        print("正在爬取第", i, "页数据。", "用时：", end - start)
+        start = time.time()  # 记下开始时刻
 
         # 获取表格数据
         lis = driver.find_elements_by_css_selector('#AlarmInfo tbody tr')
@@ -100,6 +98,7 @@ def parse_product():
         # 下一页
         driver.find_element_by_xpath("//li[@class='page-next']/a").click()
         time.sleep(2)
+        end = time.time()   #记下结束时刻
 
     workbook.close()
 
@@ -115,6 +114,7 @@ driver = webdriver.Chrome(options=chrome_options)
 # 不添加无头headless
 # driver = webdriver.Chrome()
 
-driver.get("http://117.78.34.39:7078/BigData/Main")
+driver.get("http://117.78.34.39:7078/DataQuery/StationHistoryData")
+driver.implicitly_wait(10)
 get_product(account, password)
 parse_product()
