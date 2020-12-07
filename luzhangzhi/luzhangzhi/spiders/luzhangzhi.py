@@ -122,13 +122,13 @@ def get_excel():
 
     # 获取数据并写入excel
     row = 1
-    re_parse_product(worksheet, row)
+    row = re_parse_product("国省道扬尘 小时数据 前半月,", worksheet, row)
 
     # 查询下一时间段数据
     set_query_time("16", str(calendar.monthrange(year, month)[1]), True)
 
     # 获取数据并写入excel
-    re_parse_product(worksheet, row)
+    hour_number = re_parse_product("国省道扬尘 小时数据 后半月,", worksheet, row)
 
     # 查询日数据
     set_query_time("01", str(calendar.monthrange(year, month)[1]), False)
@@ -141,27 +141,38 @@ def get_excel():
     worksheet.write(0, 3, "PM10")
 
     # 获取数据并写入excel
-    re_parse_product(worksheet, 1)
+    day_number = re_parse_product("国省道扬尘 天数据,", worksheet, 1)
 
     # 关闭excel
     workbook.close()
 
+    # 任务结束
+    end = time.time()
+
+    # 统计
+    print("\n任务结束，共计用时：", round((end - start)/60, 2), "分钟")
+    print("抓取小时数据条数：", hour_number - 1)
+    print("抓取天数据条数：", day_number - 1)
+
 
 # 正则表达式爬取数据
-def re_parse_product(worksheet, row):
+def re_parse_product(title, worksheet, row):
     # 获取总页数
-    page_total = int(driver.find_element_by_xpath("//li[@class='page-last']/a").text)
-    print("\n查询成功，数据总页数为：", page_total)
+    page_list = driver.find_elements_by_xpath("//ul[@class='pagination']/li")
+    page_total = int(page_list[-2].text)
+    print("\n" + title + "查询成功，数据总页数为：", page_total)
+
     # 显示进度条
     pbar = tqdm(total=page_total)
 
     i = 0
-    while i < 3:
+    while i < page_total:
         i += 1
         pbar.update(1)
         html = driver.page_source
         data_text_one = re.findall(r"<tr data-index=\"0\">.*</tr>", html)
-        data_text_two = re.findall(r"(?<=<td style=\"text-align: center; vertical-align: middle; \">).*?(?=</td>)", data_text_one[0])
+        data_text_two = re.findall(r"(?<=<td style=\"text-align: center; vertical-align: middle; \">).*?(?=</td>)",
+                                   data_text_one[0])
 
         # j来控制换行
         j = 0
@@ -178,6 +189,10 @@ def re_parse_product(worksheet, row):
         # 下一页
         driver.find_element_by_xpath("//li[@class='page-next']/a").click()
         time.sleep(2)
+
+    # 关闭进度条
+    pbar.close()
+    return row
 
 
 # # css选择器爬取数据
@@ -235,8 +250,10 @@ def re_parse_product(worksheet, row):
 # 属性设置
 account = "hezexh"
 password = "hz@123456"
-set_page_num = 200
+set_page_num = 1000
 
+# 任务开始
+start = time.time()
 
 # 获取数据月份年份
 month = datetime.datetime.now().month - 1
