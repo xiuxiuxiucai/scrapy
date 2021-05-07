@@ -212,7 +212,7 @@ password = "hz@123456"
 set_page_num = 1000
 # 如果开启测试，查询的数据量将大幅减少，从而提升测试效率，且不会关闭浏览器
 is_test = False
-# 循环次数，默认为1，它的值设为多少，就会生成多少次excel文档
+# 循环次数，默认为1，它的值设为多少，就会生成多少次excel文档，且每次文档的数据月份加一
 for_number = 1
 # 获取前一月的数据
 month = datetime.datetime.now().month - 1
